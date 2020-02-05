@@ -1,10 +1,14 @@
 package application;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.TreeSet;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -13,39 +17,64 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.w3c.dom.DOMException;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
+import opennlp.tools.lemmatizer.DictionaryLemmatizer;
+import opennlp.tools.postag.POSModel;
+import opennlp.tools.postag.POSTaggerME;
 
 public class Crawler {
 	private Index index;
 	private IndexInverse indexInverse;
-	public static List<String> listeStopWord;
+	public static TreeSet<String> stopWords;
 	public ArrayList<String> arborescence;
+	public final static String URL_STOPWORDS="src/application/stopwords.txt";
+	public final static String URL_POSBIN="src/application/en-pos-maxent.bin";
+	public final static String URL_DICTLEMMATIZE="src/application/en-lemmatizer.dict";
+	public final static String FOLDER_CORPUS="src/application/corpusRInew";
+	public static DictionaryLemmatizer lemmatizer;
+	public static POSTaggerME posTagger;
 	
 	public Crawler(Index index, IndexInverse indexInverse) {
 		this.index = index;
 		this.indexInverse = indexInverse;
-		Crawler.stopWords();
-		System.out.println("gaco");
-		ArrayList<String> iss=Crawler.listFilesForFolder(new File("src/application/corpusRInew"));
-		//System.out.println(iss);
-		this.parseAll(iss);
-		System.out.println("wtf");
-		//System.out.println(this.indexInverse);
-		System.out.println("oyea");
-		//System.out.println(this.indexInverse.getIndexInverse().get("flashier").stream().findFirst().get().getTermes());
-		//System.out.println("oui ptn tu clc");
-		System.out.println(this.index.getListeDocuments().stream().findAny().get().getTermes());
-		//this.indexerLesDocument();
+		this.lemmatizerList();
+		this.stopWordsRead();
+		System.out.println(Crawler.stopWords);
+		ArrayList<String> iss=listFilesForFolder(new File(Crawler.FOLDER_CORPUS));
+		this.crawlAll(iss);
+		for(Document d : this.index.getListeDocuments()) {
+			System.out.println(d.getTermes());
+		}
 	}
 	
-	public static void stopWords() {
-		String texte = "";
+	public void lemmatizerList() {
+		try{
+            InputStream posModelIn = new FileInputStream(Crawler.URL_POSBIN);
+            POSModel posModel = new POSModel(posModelIn);
+            Crawler.posTagger = new POSTaggerME(posModel);
+            InputStream dictLemmatizer = new FileInputStream(Crawler.URL_DICTLEMMATIZE);
+            Crawler.lemmatizer = new DictionaryLemmatizer(dictLemmatizer);
+ 
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } 
+	}
+	
+	public void stopWordsRead() {
+		this.stopWords=new TreeSet<String>();
+		BufferedReader reader;
 		try {
-			texte = TraitementDocument.extraireTexte("src/application/stopwords.txt");
+			reader = new BufferedReader(new FileReader(Crawler.URL_STOPWORDS));
+			String line = reader.readLine();
+			while (line != null) {
+				Crawler.stopWords.add(line.toLowerCase());
+				line = reader.readLine();
+			}
+			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Crawler.listeStopWord = Arrays.asList(texte.split("\n"));
 		
 	}
 	
@@ -61,7 +90,7 @@ public class Crawler {
 	    return a;
 	}
 	
-	public void parseAll(ArrayList<String> fichier) {
+	public void crawlAll(ArrayList<String> fichier) {
 		try {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 	        SAXParser parser = factory.newSAXParser();
@@ -84,7 +113,7 @@ public class Crawler {
 		} /*catch (SAXParseException e) {
 			//System.out.println("mais naaan");
 			//throw new RuntimeException("bon");
-			//Bon j'ignore parce que j'ai bien la flemme de changer le DTD de quoi que ce soit
+			//Bon j'ignore parce que j'ai bien la flemme de changer le DOCTYPE de quoi que ce soit
 		}*/ catch (SAXException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

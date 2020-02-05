@@ -1,9 +1,9 @@
 package application;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -16,6 +16,7 @@ public class XMLHandler extends DefaultHandler{
    private boolean docno=false;
    private boolean date=false;
    private boolean title=false;
+   private boolean trailer=false;
    private Document document;
    private IndexInverse indexInverse;
    
@@ -30,38 +31,29 @@ public class XMLHandler extends DefaultHandler{
    public void startDocument() throws SAXException {
 	   this.document=new Document();
    }
-
-   public void endDocument() throws SAXException {
-		//System.out.println(this.document);
-		//System.out.println("Fin du parsing");
-   }
    
-   public void startElement(String namespaceURI, String lname,
-         String qname, Attributes attrs) throws SAXException {
-      //System.out.println("namsespaceURI "+namespaceURI+" lname "+lname+" qname "+qname+" attrs "+attrs);
-      if(qname=="DOCNO")
+   public void startElement(String namespaceURI, String lname, String qname, Attributes attrs) throws SAXException {
+      if(qname.toUpperCase().equals("DOCNO"))
     	  this.docno=true;
-      else if(qname=="DATE_TIME")
+      else if(qname.toUpperCase().equals("DATE_TIME"))
     	  this.date=true;
-      else if(qname=="HEADLINE")
+      else if(qname.toUpperCase().equals("HEADLINE"))
     	  this.title=true;
-      else if(qname=="BODY")
+      else if(qname.toUpperCase().equals("BODY"))
     	  this.body=true;
+      else if(qname.toUpperCase().equals("TRAILER"))
+    	  this.trailer=true;
    }   
 
    public void endElement(String uri, String localName, String qName)
          throws SAXException{
-     //System.out.println("uri " + uri + " localName " + localName + " qName " + qName);
      this.docno=false;
      this.date=false;
      this.title=false;
+     this.trailer=false;
    }
    
-   /**
-    * permet de récupérer la valeur d'un nœud
-    */  
    public void characters(char[] data, int start, int end){
-	  Main.gacooo++;
       String str = new String(data, start, end);
       if(this.docno)
     	  this.document.setDocno(str);
@@ -70,19 +62,39 @@ public class XMLHandler extends DefaultHandler{
       else if (this.title)
     	  this.document.setTitle(str);
       
-      if(this.body) {
-    	  //str=TraitementDocument.sanitize(str);
-    	  //List<String> liste=TraitementDocument.splitDoc(str);
-    	  SimpleTokenizer simpleTokenizer = SimpleTokenizer.INSTANCE;  
-          
-          //Tokenizing the given sentence 
-          String tokens[] = simpleTokenizer.tokenize(str);
-          List<String> liste=Arrays.asList(tokens);
-    	  //liste=TraitementDocument.rmStopWords(liste, Crawler.listeStopWord);
-    	  this.document.addTermes(liste);
-    	  //System.out.println("liste "+liste+" doc "+this.document+" gacooo "+Main.gacooo);
-    	  this.indexInverse.addTermes(liste,this.document);
+      if(this.body&&!this.trailer) {
+		SimpleTokenizer simpleTokenizer = SimpleTokenizer.INSTANCE;  
+		String tokens[] = simpleTokenizer.tokenize(str);
+		String tags[] = Crawler.posTagger.tag(tokens); 
+		String lemmas[] = Crawler.lemmatizer.lemmatize(tokens, tags);
+		ArrayList<String> finalement=new ArrayList<>();
+		/*for(String l : lemmas) {
+		  System.out.println(l);
+		}*/
+/*		System.out.print("[");
+		for(int i=0;i<tokens.length;i++) {
+			System.out.print(tokens[i]+", ");
+		}
+		System.out.println("]");
+		System.out.print("[");
+		for(int i=0;i<tokens.length;i++) {
+			System.out.print(lemmas[i]+", ");
+		}
+		System.out.println("]");*/
+		for(int i=0;i<tokens.length;i++) {
+			if(lemmas[i].equals("O"))
+				finalement.add(tokens[i]);
+			else
+				finalement.add(lemmas[i]);
+		}
+		/*System.out.println(finalement);
+		System.out.println("\n");*/
+		List<String> liste=finalement.parallelStream().map(x -> x.toLowerCase()).collect(Collectors.toList());
+		ArrayList<String> arrayListe=new ArrayList<String>();
+		arrayListe.addAll(liste);
+		arrayListe=Document.rmStopWords(arrayListe, Crawler.stopWords);
+		this.document.addTermes(arrayListe);
+		this.indexInverse.addTermes(arrayListe,this.document);
       }
-      //System.out.println("Donnée du nœud " + node + " : " + str);
    }
 }

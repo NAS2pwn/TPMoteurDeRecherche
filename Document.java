@@ -1,13 +1,11 @@
 package application;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
+import java.util.TreeSet;
 
 public class Document{
 	public Map<String,Frequences> termes;
@@ -62,6 +60,20 @@ public class Document{
 		for (Map.Entry<String, Frequences> entry : this.termes.entrySet()) {
 	        entry.getValue().calcFrequence(this.longueur);
 	    }
+	}
+	
+	public static ArrayList<String> rmStopWords(ArrayList<String> in, TreeSet<String> stopWords){
+		//int hohoho=0;
+		Iterator<String> it=in.iterator();
+		String word="";
+		while(it.hasNext()) {
+			/*System.out.println(hohoho);
+			hohoho++;*/
+			word=it.next();
+			if(stopWords.contains(word))
+				it.remove();
+		}
+		return in;
 	}
 	
 	@Override
