@@ -8,6 +8,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -121,5 +124,23 @@ public class Crawler {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	public double calculTf(Document d, String t) {
+		Map<String,Frequences> m = d.getTermes();
+		return m.get(t).getNbOc()/m.size();
+    }
+
+    public double calculIDF(Set<Document> docs, String t) {
+        double n = 0;
+        for (Document d : docs)
+        	for (Map.Entry<String,Frequences> e : d.getTermes().entrySet())
+        		n+=e.getValue().getNbOc();
+        return Math.log(docs.size() / n);
+    }
+
+    public double tfIdf(Document doc, Set<Document> docs, String terme) {
+        return calculTf(doc, terme) * calculIDF(docs, terme);
+    }
 
 }
