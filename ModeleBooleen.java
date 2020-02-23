@@ -23,14 +23,13 @@ public class ModeleBooleen {
 		boolean hasOperator=false;
 		Operator operator=Operator.or;
 		
-		if(tokens.length==0)
-			return criteriums;
-		
-		criteriums.add(new BooleanCriterium(Operator.or, tokens[0]));
-		
-		for(int i=1;i<tokens.length;i++) {
-			if(!hasOperator && !Operator.contains(tokens[i]))
-				criteriums.add(new BooleanCriterium(Operator.and, tokens[i]));
+		for(int i=0;i<tokens.length;i++) {
+			if(!hasOperator && !Operator.contains(tokens[i])) {
+				if(i==0)
+					criteriums.add(new BooleanCriterium(Operator.or, tokens[i]));
+				else
+					criteriums.add(new BooleanCriterium(Operator.and, tokens[i]));
+			}
 			else if(!hasOperator && Operator.contains(tokens[i])) {
 				hasOperator=true;
 				operator=Operator.valueOf(tokens[i]);
@@ -50,14 +49,17 @@ public class ModeleBooleen {
 		ArrayList<BooleanCriterium> criteriums=parseRequest(requete);
 		
 		for(BooleanCriterium bc : criteriums) {
+			Set<Document> setDoc1;
 			System.out.println(bc);
-			if(!this.indexInverse.containsTerme(bc.getTerme()))
-				continue;
 			
-			Set<Document> setDoc1=this.indexInverse.getSetDoc(bc.getTerme());
+			if(!this.indexInverse.containsTerme(bc.getTerme()))
+				setDoc1=new HashSet<>();
+			else
+				setDoc1=this.indexInverse.getSetDoc(bc.getTerme());
+			
 			switch(bc.getOperator()) {
 				case not:
-					setDoc=setDoc.parallelStream().filter(d -> (!setDoc1.contains(d))).collect(Collectors.toSet());
+					setDoc=setDoc.parallelStream().filter(d -> !setDoc1.contains(d)).collect(Collectors.toSet());
 					/*Iterator<Document> it1=setDoc1.iterator();
 					while(it1.hasNext()) {
 						Document d=it1.next();
@@ -70,12 +72,16 @@ public class ModeleBooleen {
 						setDoc.add(d);
 					break;
 				case and:
-					setDoc=setDoc.parallelStream().filter(d -> setDoc1.contains(d)).collect(Collectors.toSet());
+					System.out.println(setDoc);
+					setDoc=setDoc.parallelStream().filter(d -> {System.out.println(d); return setDoc1.contains(d);}).collect(Collectors.toSet());
+					System.out.println(setDoc);
 					/*Iterator<Document> it=setDoc.iterator();
 					while(it.hasNext()) {
 						Document d=it.next();
-						if(!setDoc1.contains(d))
+						if(!setDoc1.contains(d)) {
+							System.out.println("oh");
 							setDoc.remove(d);
+						}
 					}*/
 					break;
 				default:
