@@ -31,8 +31,16 @@ public class Document{
 		this.date=date;
 	}
 	
+	public String getDate() {
+		return this.date;
+	}
+	
 	public void setTitle(String title) {
 		this.title=title;
+	}
+	
+	public String getTitle() {
+		return this.title;
 	}
 
 	public Map<String, Frequences> getTermes() {

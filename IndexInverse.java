@@ -8,18 +8,22 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class IndexInverse {
-	public HashMap<String,Set<Document>> indexInverse;
+	public Map<String,Set<Document>> indexInverse;
 	
 	public IndexInverse() {
-		this.indexInverse=new HashMap<>();
+		this.indexInverse=new TreeMap<>();
 	}
 	
-	public HashMap<String,Set<Document>> getIndexInverse(){
+	public Map<String,Set<Document>> getIndexInverse(){
 		return this.indexInverse;
 	}
 	
 	public Set<Document> getSetDoc(String terme){
 		return this.indexInverse.get(terme);
+	}
+	
+	public boolean containsTerme(String terme){
+		return this.indexInverse.containsKey(terme);
 	}
 	
 	public void addTermes(List<String> listeS, Document d) {

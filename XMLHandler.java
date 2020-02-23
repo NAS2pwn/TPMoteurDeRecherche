@@ -63,8 +63,7 @@ public class XMLHandler extends DefaultHandler{
     	  this.document.setTitle(str);
       
       if(this.body&&!this.trailer) {
-		SimpleTokenizer simpleTokenizer = SimpleTokenizer.INSTANCE;  
-		String tokens[] = simpleTokenizer.tokenize(str);
+		String tokens[] = Crawler.simpleTokenizer.tokenize(str);
 		String tags[] = Crawler.posTagger.tag(tokens); 
 		String lemmas[] = Crawler.lemmatizer.lemmatize(tokens, tags);
 		ArrayList<String> finalement=new ArrayList<>();

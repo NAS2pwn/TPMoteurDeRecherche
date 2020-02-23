@@ -23,30 +23,33 @@ import org.xml.sax.SAXException;
 import opennlp.tools.lemmatizer.DictionaryLemmatizer;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
+import opennlp.tools.tokenize.SimpleTokenizer;
 
 public class Crawler {
 	private Index index;
 	private IndexInverse indexInverse;
 	public static TreeSet<String> stopWords;
 	public ArrayList<String> arborescence;
-	public final static String URL_STOPWORDS="src/application/stopwords.txt";
-	public final static String URL_POSBIN="src/application/en-pos-maxent.bin";
-	public final static String URL_DICTLEMMATIZE="src/application/en-lemmatizer.dict";
-	public final static String FOLDER_CORPUS="src/application/corpusRInew";
+	public final static String URL_STOPWORDS=ServletHehe.DIRECTORY_BASE+"src/application/stopwords.txt";
+	public final static String URL_POSBIN=ServletHehe.DIRECTORY_BASE+"src/application/en-pos-maxent.bin";
+	public final static String URL_DICTLEMMATIZE=ServletHehe.DIRECTORY_BASE+"src/application/en-lemmatizer.dict";
+	public final static String FOLDER_CORPUS=ServletHehe.DIRECTORY_BASE+"src/application/corpusRInew";
 	public static DictionaryLemmatizer lemmatizer;
 	public static POSTaggerME posTagger;
+	public static SimpleTokenizer simpleTokenizer;
 	
 	public Crawler(Index index, IndexInverse indexInverse) {
 		this.index = index;
 		this.indexInverse = indexInverse;
+		simpleTokenizer = SimpleTokenizer.INSTANCE;  
 		this.lemmatizerList();
 		this.stopWordsRead();
 		System.out.println(Crawler.stopWords);
 		ArrayList<String> iss=listFilesForFolder(new File(Crawler.FOLDER_CORPUS));
 		this.crawlAll(iss);
-		for(Document d : this.index.getListeDocuments()) {
+		/*for(Document d : this.index.getListeDocuments()) {
 			System.out.println(d.getTermes());
-		}
+		}*/
 	}
 	
 	public void lemmatizerList() {
@@ -65,7 +68,7 @@ public class Crawler {
 	}
 	
 	public void stopWordsRead() {
-		this.stopWords=new TreeSet<String>();
+		Crawler.stopWords=new TreeSet<String>();
 		BufferedReader reader;
 		try {
 			reader = new BufferedReader(new FileReader(Crawler.URL_STOPWORDS));
@@ -103,7 +106,7 @@ public class Crawler {
 		        parser.parse(f, temp);
 		        temp.getDocument().calcFrequence();
 		        this.index.ajouterDoc(temp.getDocument());
-		        System.out.println("hehe");
+		        //System.out.println("hehe");
 		        //System.out.println(temp.getDocument().getTermes());
 			}
 		}
@@ -125,6 +128,9 @@ public class Crawler {
 		}
 	}
 	
+	public IndexInverse getIndexInverse() {
+		return this.indexInverse;
+	}
 	
 	public double calculTf(Document d, String t) {
 		Map<String,Frequences> m = d.getTermes();
