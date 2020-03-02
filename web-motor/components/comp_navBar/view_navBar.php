@@ -3,7 +3,7 @@
 		public function openList(){
 			?>
 			<nav class="mb-4 p-0 navbar navbar-expand-lg navbar-light bg-light secondary-color lighten-1 fixed-top border-bottom">
-              <img src="./medias/pictures/logo/logo_pro_review2/logo.png" class="d-inline-block float-left" style="width:35px; height:35px"></img>
+             
                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#sw-nav" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
                	<span class="navbar-toggler-icon"></span>
   				</button>
@@ -20,7 +20,7 @@
 	                    </a>
 		             </li>
 		             <li class="form-inline input_msg_write row col-4 ">
-					  <input id="search-bar" class="mr-2 col-10 border-bottom visible-lg" type="text" placeholder="   Recherche un Street Worker"
+					  <input id="search-bar" class="mr-2 col-10 border-bottom visible-lg " type="text" placeholder="   Fais une recherche poto"
 					    aria-label="Search">
 					    <!--<span class="visible-phone hidden-tablet hidden-desktop">myIconLabel</span>-->
 					  <i id="search-btn" class="fas fa-search" aria-hidden="true"></i>
@@ -64,7 +64,7 @@
 			      	<!--<i class="fas fa-heart text-danger" style="font-size:25px"></i>!-->
 			      	<div>
 			      		<a id="link-like" href="#"><i id="like" class="fas fa-heart text-primary" style="font-size:25px"></i></a>
-			      		<p class="d-inline-block">Friend-Zoned <i class="fas fa-sad-tear"></i></p>
+			      		<p class="d-inline-block">Friend-Zoned </p>
 			      		<script>
 			      			$("#link-like").on("click",function(){
 			      				if($("#like").hasClass("text-primary")){
@@ -100,10 +100,10 @@
 							data: data,
 							success: function(data, statut){
 								$("#article").empty();
+								$("<p class='h5'>"+(Object.keys(data).length-2)+" résultats pour la recherche : "+input_val+"</p>").appendTo("#article");
 								$.each( data, function( key, value ) {
 									if(key!="found" && key!="success"){
-										console.log(value[0].title);
-										$('<div class="card mt-2 p-4"><p class="h2">'+value[0].title+'</p><p>'+value[0].date+'</p><button data-num="'+$.trim(key)+'" data-title="'+value[0].title+'" data-toggle="modal" data-target="#exampleModalLong" class="btn btn-primary col-2 issou">Consulter</button></div>').appendTo("#article");
+										$('<div class="card mt-2 p-4"><p class="h2">'+value[0].title+'</p><p>'+value[0].date+'</p><button data-num="'+$.trim(key)+'" data-title="'+value[0].title+'" data-toggle="modal" data-target="#exampleModalLong" class="btn btn-primary col-xl-2 col-lg-2 col-md-3 col-sm-4 col-xs-5 issou">Consulter</button></div>').appendTo("#article");
 									}
 
 								});

@@ -19,10 +19,6 @@
 			$this->view->displayMenu($this->model->getMenuAction("event"));
 			$this->view->displayMenu($this->model->getMenuAction("stats"));
 			$this->view->firstList();
-			$this->view->displayMenu($this->model->getArray("disconnection"));
-		
-			$this->view->displayMenu($this->model->getArray("connection"));
-			$this->view->displayMenu($this->model->getArray("register"));
 			$this->view->closeList2();
 		
 

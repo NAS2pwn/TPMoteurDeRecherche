@@ -58,7 +58,7 @@ setlocale(LC_ALL, 'fr_FR.UTF8', 'fr_FR','fr','fr','fra','fr_FR@euro');
 		?>
 		</nav>
 	</header>
-		<article id="article" class="col-xl-8 col-lg-9 col-md-10 col-sm-12 col-xs-12 mx-auto w-100 p-4" style="margin-top: 7%">
+		<article id="article" class="col-xl-8 col-lg-9 col-md-12 col-sm-12 col-xs-12 mx-auto w-100 p-5">
 			
 		</article>
 		<div>
