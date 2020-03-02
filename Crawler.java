@@ -28,6 +28,7 @@ import opennlp.tools.tokenize.SimpleTokenizer;
 public class Crawler {
 	private Index index;
 	private IndexInverse indexInverse;
+	private Map<String, Integer> ;
 	public static TreeSet<String> stopWords;
 	public ArrayList<String> arborescence;
 	public final static String URL_STOPWORDS=ServletHehe.DIRECTORY_BASE+"src/application/stopwords.txt";
@@ -140,7 +141,7 @@ public class Crawler {
     public double calculIDF(Set<Document> docs, String t) {
         double n = 0;
         for (Document d : docs)
-        	for (Map.Entry<String,Frequences> e : d.getTermes().entrySet())
+        	(Map.Entry<String,Frequences> e : d.getTermes().entrySet())
         		n+=e.getValue().getNbOc();
         return Math.log(docs.size() / n);
     }

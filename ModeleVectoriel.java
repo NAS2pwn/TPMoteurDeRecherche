@@ -10,24 +10,20 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-import org.apache.commons.text.similarity.CosineSimilarity;
-
 public class ModeleVectoriel {
 	private Index i;
 	private IndexInverse iinv;
-	private static CosineSimilarity simCalculator;
 	private Map<Document,Vector<Double>> collection;
 	
 	public ModeleVectoriel(Index i, IndexInverse iinv) {
 		this.collection=new HashMap<>();
 		this.i=i;
 		this.iinv=iinv;
-		simCalculator=new CosineSimilarity();
 		this.calcCollection();
 	}
 	
 	private void calcCollection() {
-		Vector<Integer> temp;
+		Vector<Double> temp;
 		for(Document d : this.i.getListeDocuments()) {
 			temp=new Vector<>();
 			for(String terme : this.iinv.getTermesSorted()) {
@@ -48,13 +44,13 @@ public class ModeleVectoriel {
 	public Map<Document,Double> search(Vector<Integer> requete) {
 		Map<Document,Double> out=new HashMap<>();
 		
-		for(Entry<Document, Vector<Integer>> entry : this.collection.entrySet())
+		for(Entry<Document, Vector<Double>> entry : this.collection.entrySet())
 			out.put(entry.getKey(),this.calcSimilarite(requete, entry.getValue()));
 		
 		return out;
 	}
 	
-	private double calcSimilarite(Vector<Integer> requete, Vector<Integer> document) {
+	private double calcSimilarite(Vector<Double> requete, Vector<Double> document) {
 		//On va calculer le cosinus entre les deux vecteurs :
 		//sim(r,d)=cos(theta)=(n sum i=1 (d[i]*q[i])/( sqrt(n sum i=1 (d[i])^2) * sqrt(n sum i=1 (q[i])^2) )
 		double numerateur=0;

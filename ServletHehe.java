@@ -14,7 +14,7 @@ import org.json.JSONObject;
 public class ServletHehe extends HttpServlet {
 	
 	private static final long serialVersionUID = -5447628966384402397L;
-	public static String DIRECTORY_BASE="/root/TPMoteurDeRecherche/";//"/home/chapavoler/eclipse-workspace/moteurRechercheWeb/";
+	public static String DIRECTORY_BASE="/home/etudiants/info/nbennouar/eclipse-workspace/moteurRechercheWeb/";//"/root/TPMoteurDeRecherche/";//"/home/chapavoler/eclipse-workspace/moteurRechercheWeb/";
 	public static ModeleBooleen modeleBooleen;
 
 	public void init() throws ServletException{
