@@ -19,6 +19,10 @@ public class Document{
 		this.longueur=0;
 	}
 	
+	public int getNbOc(String terme) {
+		return this.termes.get(terme).getNbOc();
+	}
+	
 	public void setDocno(String docno) {
 		this.docno=docno;
 	}
@@ -45,6 +49,10 @@ public class Document{
 
 	public Map<String, Frequences> getTermes() {
 		return termes;
+	}
+	
+	public boolean containsTerme(String terme) {
+		return this.termes.containsKey(terme);
 	}
 
 	public void setTermes(Map<String, Frequences> termes) {

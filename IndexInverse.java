@@ -5,10 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class IndexInverse {
-	public Map<String,Set<Document>> indexInverse;
+	public TreeMap<String,Set<Document>> indexInverse;
 	
 	public IndexInverse() {
 		this.indexInverse=new TreeMap<>();
@@ -24,6 +26,10 @@ public class IndexInverse {
 	
 	public boolean containsTerme(String terme){
 		return this.indexInverse.containsKey(terme);
+	}
+	
+	public SortedSet<String> getTermesSorted(){
+		return (SortedSet<String>) this.indexInverse.keySet();
 	}
 	
 	public void addTermes(List<String> listeS, Document d) {
