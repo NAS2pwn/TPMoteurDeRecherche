@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -28,7 +30,8 @@ import opennlp.tools.tokenize.SimpleTokenizer;
 public class Crawler {
 	private Index index;
 	private IndexInverse indexInverse;
-	private Map<String, Integer> ;
+	//private Map<String, Integer> occCorpus;
+	public static Map<String, Double> IDFCorpus;
 	public static TreeSet<String> stopWords;
 	public ArrayList<String> arborescence;
 	public final static String URL_STOPWORDS=ServletHehe.DIRECTORY_BASE+"src/application/stopwords.txt";
@@ -48,9 +51,14 @@ public class Crawler {
 		System.out.println(Crawler.stopWords);
 		ArrayList<String> iss=listFilesForFolder(new File(Crawler.FOLDER_CORPUS));
 		this.crawlAll(iss);
+		
 		/*for(Document d : this.index.getListeDocuments()) {
 			System.out.println(d.getTermes());
 		}*/
+		//this.calcOccCorpus();
+		this.IDFCorpus=new TreeMap<>();
+		this.calcIDFCorpus();
+		this.calcTfIDFAllDocs();
 	}
 	
 	public void lemmatizerList() {
@@ -133,21 +141,70 @@ public class Crawler {
 		return this.indexInverse;
 	}
 	
+	/*private void calcOccCorpus() {
+		for(Document d : this.index.getListeDocuments()) {
+			for(Map.Entry<String,Frequences> terme : d.getTermes().entrySet()) {
+				if(!this.occCorpus.containsKey(terme.getKey()))
+					this.occCorpus.put(terme.getKey(), terme.getValue().getNbOc());
+				else
+					this.occCorpus.replace(terme.getKey(),this.occCorpus.get(terme.getKey())+terme.getValue().getNbOc());
+			}
+		}
+	}*/
+	
+	private void calcIDFCorpus() {
+		IDFCorpus.clear();
+		for(String terme:this.getIndexInverse().getTermesSorted())
+			IDFCorpus.put(terme, calculIDF(terme));
+	}
+	
 	public double calculTf(Document d, String t) {
-		Map<String,Frequences> m = d.getTermes();
-		return m.get(t).getNbOc()/m.size();
+		return d.getTermes().get(t).getNbOc()/d.getNbOccurencesTotale();
     }
-
-    public double calculIDF(Set<Document> docs, String t) {
-        double n = 0;
+	
+    public double calculIDF(String t) {
+    	Set<Document> docs=this.index.getListeDocuments();
+        int n = 0;
         for (Document d : docs)
-        	(Map.Entry<String,Frequences> e : d.getTermes().entrySet())
-        		n+=e.getValue().getNbOc();
-        return Math.log(docs.size() / n);
+        	if(d.containsTerme(t))
+        		n++;
+        return Math.log((double) docs.size() / (double) n);
     }
 
-    public double tfIdf(Document doc, Set<Document> docs, String terme) {
-        return calculTf(doc, terme) * calculIDF(docs, terme);
+    public double calcTfIDFfromScratch(Document doc, String terme) {
+        return calculTf(doc,terme) * calculIDF(terme);
     }
-
+    
+    public double calcTfIDF(Document doc, String terme) {
+    	if(this.IDFCorpus==null||!this.IDFCorpus.containsKey(terme))
+    		throw new Error("Assurez-vous d'avoir calculer les IDF du corpus avec this.calcIDFCorpus(), sinon utilisez calcTfIDFfromScratch(Document doc, String t), qui est moins performant");
+    	return calculTf(doc,terme) * IDFCorpus.get(terme);
+    }
+    
+    public void calcTfIDFAllDocs() {
+		for(Document d: this.index.getListeDocuments()) {
+			for(Map.Entry<String,Frequences> entry : d.getTermes().entrySet()) {
+				entry.getValue().setTfIDF(calcTfIDF(d,entry.getKey()));
+			}
+		}
+	}
+    
+    public static ArrayList<String> traiterString(String str) {
+    	String tokens[] = Crawler.simpleTokenizer.tokenize(str);
+		String tags[] = Crawler.posTagger.tag(tokens); 
+		String lemmas[] = Crawler.lemmatizer.lemmatize(tokens, tags);
+		ArrayList<String> finalement=new ArrayList<>();
+		for(int i=0;i<tokens.length;i++) {
+			if(lemmas[i].equals("O"))
+				finalement.add(tokens[i]);
+			else
+				finalement.add(lemmas[i]);
+		}
+		List<String> liste=finalement.parallelStream().map(x -> x.toLowerCase()).collect(Collectors.toList());
+		ArrayList<String> arrayListe=new ArrayList<String>();
+		arrayListe.addAll(liste);
+		arrayListe=Document.rmStopWords(arrayListe, Crawler.stopWords);
+		
+		return arrayListe;
+    }
 }

@@ -3,7 +3,7 @@ package application;
 public class Frequences {
 	private int nbOc;
 	private double frequence;
-	private int tfIDF;
+	private double tfIDF;
 	
 	public Frequences(int n) {
 		this.nbOc=n;
@@ -39,12 +39,12 @@ public class Frequences {
 		this.frequence=((double) this.nbOc)/((double) longueur);
 	}
 
-	public int getTfIDF() {
-		return tfIDF;
+	public double getTfIDF() {
+		return this.tfIDF;
 	}
 
-	public void setTfIDF(int tfIDF) {
-		this.tfIDF = tfIDF;
+	public void setTfIDF(double d) {
+		this.tfIDF = d;
 	}
 	
 	@Override

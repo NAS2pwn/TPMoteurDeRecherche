@@ -19,8 +19,19 @@ public class Document{
 		this.longueur=0;
 	}
 	
+	public int getNbOccurencesTotale() { 
+		int out=0;
+		for(Map.Entry<String, Frequences> terme : this.termes.entrySet()) 
+			out+=terme.getValue().getNbOc();
+		return out;
+	}
+	
 	public int getNbOc(String terme) {
 		return this.termes.get(terme).getNbOc();
+	}
+	
+	public double getTfIDF(String terme) {
+		return this.termes.get(terme).getTfIDF();
 	}
 	
 	public void setDocno(String docno) {

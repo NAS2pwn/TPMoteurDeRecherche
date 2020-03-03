@@ -22,26 +22,41 @@ public class ModeleVectoriel {
 		this.calcCollection();
 	}
 	
-	private void calcCollection() {
-		Vector<Double> temp;
-		for(Document d : this.i.getListeDocuments()) {
-			temp=new Vector<>();
-			for(String terme : this.iinv.getTermesSorted()) {
-				if(d.containsTerme(terme))
-					temp.add(d.getNbOc(terme));
-				else
-					temp.add(0);
-			}
-			this.collection.put(d,temp);
+	private Vector<Double> calcVectDoc(Document d){
+		Vector<Double> temp=new Vector<>();
+		for(String terme : this.iinv.getTermesSorted()) {
+			if(d.containsTerme(terme))
+				temp.add(d.getTfIDF(terme));
+			else
+				temp.add(0d);
 		}
+		return temp;
 	}
 	
-	public List<Document> sortedSearch(Vector<Integer> requete){
-		Map<Document,Double> mapSearch=this.search(requete);
-		return mapSearch.entrySet().parallelStream().filter(x -> x.getValue()!=0.0).sorted(Map.Entry.comparingByValue()).map(x -> x.getKey()).collect(Collectors.toList());
+	private void calcCollection() {
+		for(Document d : this.i.getListeDocuments())
+			this.collection.put(d,this.calcVectDoc(d));
+	}
+	
+	public List<Document> completeSearch(String requete) {
+		Document reqDoc=this.interpreteur(requete);
+		Vector<Double> reqVect=this.calcVectDoc(reqDoc);
+		Map<Document,Double> results=searchVector(reqVect);
+		return this.sortSearch(results);
+	}
+	
+	private Document interpreteur(String requete) {
+		Document out=new Document();
+		ArrayList<String> requeteNormalized=Crawler.traiterString(requete);
+		out.addTermes(requeteNormalized);
+		return out;
+	}
+	
+	private List<Document> sortSearch(Map<Document,Double> results){
+		return results.entrySet().parallelStream().filter(x -> x.getValue()!=0.0).sorted(Map.Entry.comparingByValue()).map(x -> x.getKey()).collect(Collectors.toList());
 	}
 
-	public Map<Document,Double> search(Vector<Integer> requete) {
+	private Map<Document,Double> searchVector(Vector<Double> requete) {
 		Map<Document,Double> out=new HashMap<>();
 		
 		for(Entry<Document, Vector<Double>> entry : this.collection.entrySet())

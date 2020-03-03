@@ -63,35 +63,7 @@ public class XMLHandler extends DefaultHandler{
     	  this.document.setTitle(str);
       
       if(this.body&&!this.trailer) {
-		String tokens[] = Crawler.simpleTokenizer.tokenize(str);
-		String tags[] = Crawler.posTagger.tag(tokens); 
-		String lemmas[] = Crawler.lemmatizer.lemmatize(tokens, tags);
-		ArrayList<String> finalement=new ArrayList<>();
-		/*for(String l : lemmas) {
-		  System.out.println(l);
-		}*/
-/*		System.out.print("[");
-		for(int i=0;i<tokens.length;i++) {
-			System.out.print(tokens[i]+", ");
-		}
-		System.out.println("]");
-		System.out.print("[");
-		for(int i=0;i<tokens.length;i++) {
-			System.out.print(lemmas[i]+", ");
-		}
-		System.out.println("]");*/
-		for(int i=0;i<tokens.length;i++) {
-			if(lemmas[i].equals("O"))
-				finalement.add(tokens[i]);
-			else
-				finalement.add(lemmas[i]);
-		}
-		/*System.out.println(finalement);
-		System.out.println("\n");*/
-		List<String> liste=finalement.parallelStream().map(x -> x.toLowerCase()).collect(Collectors.toList());
-		ArrayList<String> arrayListe=new ArrayList<String>();
-		arrayListe.addAll(liste);
-		arrayListe=Document.rmStopWords(arrayListe, Crawler.stopWords);
+		ArrayList<String> arrayListe=Crawler.traiterString(str);
 		this.document.addTermes(arrayListe);
 		this.indexInverse.addTermes(arrayListe,this.document);
       }
