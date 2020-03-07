@@ -19,7 +19,7 @@ public class ServletHehe extends HttpServlet {
 	
 	private static final long serialVersionUID = -5447628966384402397L;
 	public static String DIRECTORY_BASE=/*"/home/etudiants/info/nbennouar/eclipse-workspace/moteurRechercheWeb/";//"/root/TPMoteurDeRecherche/";//*/"/home/chapavoler/eclipse-workspace/moteurRechercheWeb/";
-	//Giga faille OSINT mdr, le bon privesc en root avec GhostCat là miam
+	//Giga faille OSINT mdr
 	public static ModeleBooleen modeleBooleen;
 	public static ModeleVectoriel modeleVectoriel;
 	public static final String BOOLEAN_MODE="1";
@@ -30,13 +30,13 @@ public class ServletHehe extends HttpServlet {
 		IndexInverse iinv=new IndexInverse();
 		Crawler c=new Crawler(i,iinv);
 		System.out.println("test");
-		modeleBooleen=new ModeleBooleen(iinv);
+		modeleBooleen=new ModeleBooleen(i,iinv);
 		modeleVectoriel=new ModeleVectoriel(i, iinv);
 	}
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		/*res.setContentType("application/json");
+		res.setContentType("application/json");
 		System.out.println("Nouvelle connexion lo on se fait hacker :'(");
 		
 		String param=req.getParameter("param");
@@ -63,7 +63,7 @@ public class ServletHehe extends HttpServlet {
 		else {
 			Collection<Document> documents=null;
 			if(param.equals(BOOLEAN_MODE))
-				documents=modeleBooleen.searchThisShit(request);
+				documents=modeleBooleen.search(request);
 			else if(param.equals(VECTORIAL_MODE))
 				documents=modeleVectoriel.completeSearch(request);
 			else {
@@ -94,7 +94,10 @@ public class ServletHehe extends HttpServlet {
 		}
 		
 		ServletOutputStream out = res.getOutputStream();
-		out.print(json.toString());*/
-		System.out.println(modeleBooleen.parseRequest("gaco and segpa or (hoho and test)"));
+		out.print(json.toString());
+		//System.out.println("containsLeft : "+Operator.containsLeft("("));
+		//System.out.println(modeleBooleen.parseRequest("gaco || segpa && !(hoho || (hehe && test) )"));
+		//System.out.println(modeleBooleen.issou("gaco || segpa && !(hoho || (hehe && test) )"));
+		//System.out.println(Operator.valueOf("and"));
 	} 
 }
