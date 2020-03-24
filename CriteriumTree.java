@@ -108,8 +108,17 @@ public class CriteriumTree {
 			else
 				return ServletHehe.modeleBooleen.applyOperator(Operator.valueOfRep(this.value), this.filsD.calcAll());
 		}
-		else
-			return ServletHehe.modeleBooleen.applyOperator(this.filsG.calcAll(), Operator.valueOfRep(this.value), this.filsD.calcAll());
+		else {
+			Set<Document> out=ServletHehe.modeleBooleen.applyOperator(this.filsG.calcAll(), Operator.valueOfRep(this.value), this.filsD.calcAll());
+			
+			if(!this.filsG.estVide() && !Operator.contains(this.filsG.getValue()))
+				ServletHehe.modeleBooleen.applyTermeOnSet(this.filsG.getValue(), out);
+			
+			if(!this.filsD.estVide() && !Operator.contains(this.filsD.getValue()))
+				ServletHehe.modeleBooleen.applyTermeOnSet(this.filsD.getValue(), out);
+			
+			return out;
+		}
 	}
 	
 	public String getValue() {

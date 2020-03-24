@@ -8,15 +8,35 @@ import java.util.Map;
 import java.util.TreeSet;
 
 public class Document{
+	public static int maxNbLikes;
 	public Map<String,Frequences> termes;
 	private String docno;
 	private String date;
 	private String title;
 	private int longueur;
+	private int nbLikes;
+	private double pertinence;
+	private double boolGlobalFrequence;
 	
 	public Document() {
+		this.pertinence=0;
+		this.boolGlobalFrequence=0;
 		this.termes = new HashMap<>();
 		this.longueur=0;
+		this.nbLikes=0;
+	}
+	
+	public void calcBoolPertinence(String terme) {
+		this.boolGlobalFrequence+=this.termes.get(terme).getFrequence();
+		this.pertinence=this.boolGlobalFrequence*(1+(Document.maxNbLikes==0 ? 0 : (this.nbLikes/Document.maxNbLikes)*ModeleBooleen.INFLUENCE_LIKES_RATIO));
+	}
+	
+	public double getPertinence() {
+		return this.pertinence;
+	}
+	
+	public int getNbLikes() {
+		return this.nbLikes;
 	}
 	
 	public int getNbOccurencesTotale() { 
@@ -24,6 +44,31 @@ public class Document{
 		for(Map.Entry<String, Frequences> terme : this.termes.entrySet()) 
 			out+=terme.getValue().getNbOc();
 		return out;
+	}
+	
+	public void like() {
+		this.nbLikes++;
+		if(this.nbLikes>Document.maxNbLikes)
+			Document.maxNbLikes=this.nbLikes;
+	}
+	
+	public void unlike() {
+		if(this.nbLikes>0)
+			this.nbLikes--;
+		/*else
+			throw new Error("bon bref t'as capté");*/
+	}
+	
+	public void clickTerme(String terme) {
+		if(termes.containsKey(terme))
+			termes.get(terme).click();
+		/*else
+			throw new Error("bon bref t'as capté");*/
+	}
+	
+	public void clickTermes(String[] termes) {
+		for(int i=0;i<termes.length;i++)
+			this.clickTerme(termes[i]);
 	}
 	
 	public int getNbOc(String terme) {
@@ -90,12 +135,9 @@ public class Document{
 	}
 	
 	public static ArrayList<String> rmStopWords(ArrayList<String> in, TreeSet<String> stopWords){
-		//int hohoho=0;
 		Iterator<String> it=in.iterator();
 		String word="";
 		while(it.hasNext()) {
-			/*System.out.println(hohoho);
-			hohoho++;*/
 			word=it.next();
 			if(stopWords.contains(word))
 				it.remove();

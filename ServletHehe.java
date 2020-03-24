@@ -4,6 +4,7 @@ import java.io.* ;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -20,18 +21,20 @@ public class ServletHehe extends HttpServlet {
 	private static final long serialVersionUID = -5447628966384402397L;
 	public static String DIRECTORY_BASE=/*"/home/etudiants/info/nbennouar/eclipse-workspace/moteurRechercheWeb/";//"/root/TPMoteurDeRecherche/";//*/"/home/chapavoler/eclipse-workspace/moteurRechercheWeb/";
 	//Giga faille OSINT mdr
+	public static Index index;
+	public static IndexInverse indexInv;
 	public static ModeleBooleen modeleBooleen;
 	public static ModeleVectoriel modeleVectoriel;
 	public static final String BOOLEAN_MODE="1";
 	public static final String VECTORIAL_MODE="2";
 
 	public void init() throws ServletException{
-		Index i = new Index();
-		IndexInverse iinv=new IndexInverse();
-		Crawler c=new Crawler(i,iinv);
+		index = new Index();
+		indexInv=new IndexInverse();
+		Crawler c=new Crawler(index,indexInv);
 		System.out.println("test");
-		modeleBooleen=new ModeleBooleen(i,iinv);
-		modeleVectoriel=new ModeleVectoriel(i, iinv);
+		modeleBooleen=new ModeleBooleen(index,indexInv);
+		modeleVectoriel=new ModeleVectoriel(index,indexInv);
 	}
 
 	@Override
@@ -41,24 +44,15 @@ public class ServletHehe extends HttpServlet {
 		
 		String param=req.getParameter("param");
 		String request=req.getParameter("search");
-		JSONArray json=new JSONArray();
 		
-		JSONObject success0=new JSONObject();
-		success0.append("success", "0");
+		JSONObject json=new JSONObject();
 		
-		JSONObject success1=new JSONObject();
-		success1.append("success", "1");
-		
-		JSONObject found0=new JSONObject();
-		found0.append("found", "0");
-		
-		JSONObject found1=new JSONObject();
-		found1.append("found", "1");
+		JSONArray results=new JSONArray();
 		
 		boolean good=true;
 		
 		if(request==null||param==null) {
-			json.put(success0);
+			json.append("success", "0");
 		}
 		else {
 			Collection<Document> documents=null;
@@ -68,17 +62,17 @@ public class ServletHehe extends HttpServlet {
 				documents=modeleVectoriel.completeSearch(request);
 			else {
 				good=false;
-				json.put(success0);
+				json.append("found", "0");
 			}
 			
 			if(good) {
-				json.put(success1);
+				json.append("success", "1");
 				
 				if(documents.size()==0) {
-					json.put(found0);
+					json.append("found", "0");
 				}
 				else {
-					json.put(found1);
+					json.append("found", "1");
 					
 					JSONObject temp;
 					
@@ -87,17 +81,57 @@ public class ServletHehe extends HttpServlet {
 						temp.append("id", d.getDocno());
 						temp.append("title", d.getTitle());
 						temp.append("date", d.getDate());
-						json.put(temp);
+						if(param.equals(BOOLEAN_MODE))
+							temp.append("pertinence", d.getPertinence());
+						results.put(temp);
 					}
+					
+					json.append("results", results);
 				}
 			}
 		}
 		
 		ServletOutputStream out = res.getOutputStream();
 		out.print(json.toString());
-		//System.out.println("containsLeft : "+Operator.containsLeft("("));
-		//System.out.println(modeleBooleen.parseRequest("gaco || segpa && !(hoho || (hehe && test) )"));
-		//System.out.println(modeleBooleen.issou("gaco || segpa && !(hoho || (hehe && test) )"));
-		//System.out.println(Operator.valueOf("and"));
-	} 
+	}
+	
+	@Override
+	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		res.setContentType("application/json");
+		System.out.println("Hohoho feedback :)");
+		
+		JSONObject json=new JSONObject();
+		
+		String param=req.getParameter("param");
+		String doc=req.getParameter("doc");
+		String like=req.getParameter("like");
+		String terme=req.getParameter("terme");
+		
+		Optional<Document> opDoc=ServletHehe.index.getListeDocuments().parallelStream().filter(x -> x.getTitle().equals(doc)).findAny();
+		
+		if(param==null||doc==null) {
+			json.append("success", "0");
+		}
+		else if (param.equals("likeIt") && opDoc.isPresent() && like!=null) { //Bon y a 0 sécu on peut like like ou dislike n'importe comment pour l'instant
+			if(like.equals("1")) {
+				json.append("success", "1");
+				opDoc.get().like();
+			}
+			else if (like.equals("-1")) {
+				json.append("success", "1");
+				opDoc.get().unlike();
+			}
+			else {
+				json.append("success", "0");
+				json.append("error", "bien joué bg ca te faire rire ??? >:(");
+			}
+		}
+		else if (param.equals("clickOnThisShit") && opDoc.isPresent() && terme!=null) {
+			Crawler.simpleTokenizer.tokenize(terme);
+		}
+		else
+			json.append("success", "0");
+		
+		
+	}
 }

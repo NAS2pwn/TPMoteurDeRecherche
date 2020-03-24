@@ -43,6 +43,7 @@ public class Crawler {
 	public static SimpleTokenizer simpleTokenizer;
 	
 	public Crawler(Index index, IndexInverse indexInverse) {
+		Document.maxNbLikes=0;
 		this.index = index;
 		this.indexInverse = indexInverse;
 		simpleTokenizer = SimpleTokenizer.INSTANCE;  
@@ -51,12 +52,7 @@ public class Crawler {
 		System.out.println(Crawler.stopWords);
 		ArrayList<String> iss=listFilesForFolder(new File(Crawler.FOLDER_CORPUS));
 		this.crawlAll(iss);
-		
-		/*for(Document d : this.index.getListeDocuments()) {
-			System.out.println(d.getTermes());
-		}*/
-		//this.calcOccCorpus();
-		this.IDFCorpus=new TreeMap<>();
+		IDFCorpus=new TreeMap<>();
 		this.calcIDFCorpus();
 		this.calcTfIDFAllDocs();
 	}

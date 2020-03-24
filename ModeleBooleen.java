@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ModeleBooleen {
-
+	
+	public static final double INFLUENCE_LIKES_RATIO=1.5;
 	private Index index;
 	private IndexInverse indexInverse;
 	public static Pattern parenthesisPattern;
@@ -90,14 +93,15 @@ public class ModeleBooleen {
 		return new HashSet<Document>();
 	}
 	
-	public Set<Document> search(String request) {
+	public SortedSet<Document> search(String request) {
 		ArrayList<String> liste=this.parseRequest(request);
 		CriteriumTree t=new CriteriumTree(liste);
 		System.out.println("Preorder : "+t.preorder()+"\nInorder : "+t.inorder()+"\nPostorder : "+t.postorder());
 		System.out.println(t.getValue());
 		System.out.println(t.getFilsG().getValue());
 		System.out.println(t.getFilsD().getValue());
-		return t.calcAll();
+		Set<Document> unordered=t.calcAll();
+		return orderResults(unordered);
 	}
 	
 	public ArrayList<String> parseRequest(String request){
@@ -146,6 +150,26 @@ public class ModeleBooleen {
 		return rpn;
 	}
 	
+	public SortedSet<Document> applyOperatorFinal(Set<Document> doc1, Operator op, Set<Document> doc2){
+		Set<Document> docs=this.applyOperator(doc1, op, doc2);
+		
+		SortedSet<Document> out=new TreeSet<Document>(new ComparatorDocPertinence());
+		
+		for(Document d : docs)
+			out.add(d);
+		
+		return out;
+	}
+	
+	public SortedSet<Document> orderResults(Set<Document> docs){
+		SortedSet<Document> out=new TreeSet<Document>(new ComparatorDocPertinence());
+		
+		for(Document d : docs)
+			out.add(d);
+		
+		return out;
+	}
+	
 	public Set<Document> applyOperator(Set<Document> doc1, Operator op, Set<Document> doc2){
 		switch(op) {
 			case OR:
@@ -174,5 +198,10 @@ public class ModeleBooleen {
 		}
 		
 		return doc1;
+	}
+	
+	public void applyTermeOnSet(String terme, Set<Document> docs) {
+		for(Document d : docs)
+			d.calcBoolPertinence(terme);
 	}
 }

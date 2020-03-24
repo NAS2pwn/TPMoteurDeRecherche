@@ -4,6 +4,7 @@ public class Frequences {
 	private int nbOc;
 	private double frequence;
 	private double tfIDF;
+	private int nbClick;
 	
 	public Frequences(int n) {
 		this.nbOc=n;
@@ -12,6 +13,14 @@ public class Frequences {
 	public Frequences(int n, double f) {
 		this.nbOc=n;
 		this.frequence=f;
+	}
+	
+	public void click() {
+		this.nbClick++;
+	}
+	
+	public int getNbClick() {
+		return this.nbClick;
 	}
 
 	public int getNbOc() {

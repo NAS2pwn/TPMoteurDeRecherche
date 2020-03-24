@@ -1,4 +1,4 @@
-package application;
+/*package application;
 
 public class BooleanCriterium {
 	private Operator operator;
@@ -22,3 +22,4 @@ public class BooleanCriterium {
 		return "[BooleanCriterium "+this.operator.toString()+" "+this.terme+"]";
 	}
 }
+*/
